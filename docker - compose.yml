@@ -1,0 +1,40 @@
+version: '3'
+
+services:
+  app:
+    build: .
+    command: uvicorn main:app --host 0.0.0.0 --port 8000 --reload
+    restart: always
+    ports:
+      -'8000:8000'
+    depends_on:
+      - db
+  db:
+    image: postgres
+    environment:
+      - POSTGRES_USER: admin
+      - POSTGRES_PASSWORD: admin
+      - POSTGRES_DB: carsher_db
+    restart: always
+    ports:
+      -'5432:5432'
+    volumes:
+      - postgres_data:/var/lib/postgresql/data/
+  pgadmin:
+    image: dpage/pgadmin4
+    restart: always
+    environment:
+      PGADMIN_DEFAULT_EMAIL: admin@admin.com
+      PGADMIN_DEFAULT_PASSWORD: admin123
+    ports:
+      - "5050:80"
+    depends_on:
+      - db
+  alembic:
+    build: .
+    command: alembic upgrade head
+    restart: no
+    depends_on:
+      - db
+volumes:
+  postgres_data:
