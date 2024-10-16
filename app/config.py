@@ -1,1 +1,1 @@
-DB_URL = 'postgresql+asyncpg://user:password@host/db'
+DB_URL = 'postgresql+asyncpg://admin:admin@db/carsher_db'
