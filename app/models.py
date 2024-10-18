@@ -10,7 +10,7 @@ from app.schemas import Role, CarStatus, BookingStatus, MaintainceStatus
 
 class Base(AsyncAttrs, DeclarativeBase):
     def to_dict(self):
-        pass
+        return {c.name: getattr(self, c.name) for c in self.__table__.columns}
 
 
 class User(Base):
