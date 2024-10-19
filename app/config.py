@@ -1,1 +1,7 @@
-DB_URL = 'postgresql+asyncpg://admin:admin@db/carsher_db'
+import os
+
+
+
+b = os.environ.get('SOMETHING')
+
+print(b)

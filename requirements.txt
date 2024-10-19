@@ -6,3 +6,4 @@ uvicorn
 pytest
 httpx
 celery
+python-dotenv
