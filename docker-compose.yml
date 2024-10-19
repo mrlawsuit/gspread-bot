@@ -30,6 +30,16 @@ services:
       - "5050:80"
     depends_on:
       - db
+  worker:
+    build: .
+    command: celery -A celery_app worker --loglevel=info
+    depends_on:
+      - db
+      - redis
+  redis:
+    image: 'redis:apline'
+    ports:
+      - '6379:6379'
   alembic:
     build: .
     command: alembic upgrade head
