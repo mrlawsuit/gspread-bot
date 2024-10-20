@@ -12,7 +12,7 @@ from app.config import SENDER_EMAIL, SMTP_HOST, SMTP_PORT, SMTP_PASS
 
 @shared_task
 async def send_email_message(user_id, subject, message):
-    user = app.database.get_user_db(app.database.get_session, user_id)
+    user = await app.database.get_user_db(app.database.get_session, user_id)
     email = user.email
     msg = MIMEText(message)
     msg['Subject'] = subject
@@ -25,4 +25,4 @@ async def send_email_message(user_id, subject, message):
     await email_client.send_message(msg)
     await email_client.quit()
     
-    return f"Email sent successfully to receiver."
+    return f'Email sent successfully to receiver.'

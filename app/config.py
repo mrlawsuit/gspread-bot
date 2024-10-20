@@ -12,3 +12,6 @@ SMTP_HOST = os.getenv('SMTP_HOST')
 SMTP_PORT = os.getenv('SMTP_PORT')
 
 SMTP_PASS = os.getenv('SMTP_PASS')
+
+if __name__ == '__main__':
+    print(SENDER_EMAIL)

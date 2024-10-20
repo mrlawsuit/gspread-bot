@@ -5,11 +5,11 @@ from sqlalchemy.ext.asyncio import (
 )
 from sqlalchemy import select, update, delete
 
-from app.models import User
-from app.config import DATABASE_URL
+from models import User
+from config import DB_URL
 
 
-engine = create_async_engine(DATABASE_URL, echo=True)
+engine = create_async_engine(DB_URL, echo=True)
 
 
 async_session = async_sessionmaker(engine, expire_on_commit=False)
@@ -20,7 +20,7 @@ async def get_session() -> AsyncGenerator[AsyncSession, None]:
         yield session
 
 
-async def get_user_db(
+async def get_user_by_id_db(
         session: AsyncSession,
         id: int
 ):
