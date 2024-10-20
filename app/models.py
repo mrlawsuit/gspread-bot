@@ -5,12 +5,26 @@ from sqlalchemy import String, Integer, Enum, Boolean, BigInteger, FLOAT, DateTi
 from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column, relationship
 from sqlalchemy.ext.asyncio import AsyncAttrs
 
-from app.schemas import Role, CarStatus, BookingStatus, MaintainceStatus
+from schemas import Role, CarStatus, BookingStatus, MaintainceStatus
 
 
 class Base(AsyncAttrs, DeclarativeBase):
     def to_dict(self):
         return {c.name: getattr(self, c.name) for c in self.__table__.columns}
+
+
+class Booking(Base):
+    __tablename__ = 'bookings'
+    id: Mapped[int] = mapped_column(Integer, primary_key=True)
+    user_id: Mapped[int] = mapped_column(Integer, ForeignKey('users.id', ondelete='CASCADE'))
+    vehicle_id: Mapped[int] = mapped_column(Integer, ForeignKey('vehicles.id', ondelete='CASCADE'))
+    start_date: Mapped[datetime] = mapped_column(DateTime(timezone=True))
+    end_date: Mapped[datetime] = mapped_column(DateTime(timezone=True))
+    status: Mapped[BookingStatus] = mapped_column(Enum(BookingStatus))
+    price: Mapped[float] = mapped_column(FLOAT)
+
+    user: Mapped['User'] = relationship('User', back_populates='bookings')
+    vehicle: Mapped['Vehicle'] = relationship('Vehicle', back_populates='bookings')
 
 
 class User(Base):
@@ -35,21 +49,7 @@ class Vehicle(Base):
     mileage: Mapped[float] = mapped_column(FLOAT)
     status: Mapped['CarStatus'] = mapped_column(Enum(CarStatus))
 
-    bookings: Mapped['Booking'] = relationship('Booking', back_populates='bookings')
-
-
-class Booking(Base):
-    __tablename__ = 'bookings'
-    id: Mapped[int] = mapped_column(Integer, primary_key=True)
-    user_id: Mapped[int] = mapped_column(Integer, ForeignKey('users.id', ondelete='CASCADE'))
-    vehicle_id: Mapped[int] = mapped_column(Integer, ForeignKey('vehicles.id', ondelete='CASCADE'))
-    start_date: Mapped[datetime] = mapped_column(DateTime(timezone=True))
-    end_date: Mapped[datetime] = mapped_column(DateTime(timezone=True))
-    status: Mapped[BookingStatus] = mapped_column(Enum(BookingStatus))
-    price: Mapped[float] = mapped_column(FLOAT)
-
-    user: Mapped['User'] = relationship('User', back_populates='bookings')
-    vehicle: Mapped['Vehicle'] = relationship('Vehicle', back_populates='vehicles')
+    bookings: Mapped['Booking'] = relationship('Booking', back_populates='vehicle')
 
 
 class Service(Base):
@@ -60,7 +60,7 @@ class Service(Base):
     price: Mapped[float] = mapped_column(FLOAT)
     
     maintainces: Mapped['VehicleMaintaince'] = relationship('VehicleMaintaince', secondary='maintaince_services', back_populates='services')
-
+    workshops: Mapped['Workshop'] = relationship('Workshop', secondary='workshops_services', back_populates='services')
 
 class Workshop(Base):
     __tablename__ = 'workshops'
@@ -70,7 +70,7 @@ class Workshop(Base):
     phone: Mapped[str] = mapped_column(BigInteger)
     # service_list: Mapped[str] = mapped_column(String(255), ForeignKey('services.id', ondelete='CASCADE'))
 
-    services: Mapped['Service'] = relationship('Service', secondary='maintaince_services', back_populates='maintainces')
+    services: Mapped['Service'] = relationship('Service', secondary='workshops_services', back_populates='workshops')
     
 
 class VehicleMaintaince(Base):
