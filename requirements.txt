@@ -5,4 +5,5 @@ alembic
 uvicorn
 pytest
 httpx
-celery
+dramatiq
+python-dotenv
