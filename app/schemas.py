@@ -19,7 +19,7 @@ class BookingStatus(Enum):
     canceled = 'отменено'
 
 
-class MaintainceStatus(Enum):
+class MaintenanceStatus(Enum):
     planned = 'запланированно'
     in_process = 'в процессе'
     done = 'завершено'

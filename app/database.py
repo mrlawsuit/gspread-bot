@@ -8,7 +8,6 @@ from sqlalchemy import select, update, delete
 from models import User
 from config import DB_URL
 
-
 engine = create_async_engine(DB_URL, echo=True)
 
 
@@ -29,4 +28,3 @@ async def get_user_by_id_db(
     if not user:
         raise ValueError('Нет такого пользователя')
     return user
-
