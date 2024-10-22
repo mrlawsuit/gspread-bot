@@ -53,7 +53,7 @@ services:
       - db
     volumes:
       - ./app:/app
-      - ./alembic.ini:/app/alembic.ini
-      - ./alembic:/app/alembic
+      - ./alembic.ini:/alembic.ini
+      - ./alembic:/alembic
 volumes:
   postgres_data:
