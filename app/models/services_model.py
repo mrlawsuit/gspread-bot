@@ -1,10 +1,12 @@
+from typing import TYPE_CHECKING
+
 from sqlalchemy import String, Integer, FLOAT
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from .base_model import Base
 from .workshops_model import Workshop
 from .vehicle_maintainances_model import VehicleMaintenance
-from .association_tables import workshops_services, maintenance_services
+from .association_tables import workshops_services, maintenances_services
 
 
 class Service(Base):
@@ -16,7 +18,7 @@ class Service(Base):
 
     maintenance: Mapped['VehicleMaintenance'] = relationship(
         'VehicleMaintenance',
-        secondary=maintenance_services,
+        secondary=maintenances_services,
         back_populates='services'
     )
     workshops: Mapped['Workshop'] = relationship(
