@@ -7,7 +7,7 @@ if module_path not in sys.path:
 
 import pytest
 from unittest.mock import AsyncMock, patch, Mock
-
+from app.tasks.notifications import send_email_message
 #from app.tasks.notifications import send_email_message
 #from ...app.tasks.notifications import send_email_message
 #from ...alembic.env import target_metadata
@@ -76,12 +76,4 @@ async def test_send_email_message_no_email(
         await send_email_message(user_id=1, subject='Subject', message='Message')
 
 if __name__ == '__main__':
-    import sys
-    import os
-
-    # Добавьте путь к директории, где находятся необходимые модули
-    module_path = os.path.abspath('/home/oleg/Рабочий стол/shering/shering')
-    if module_path not in sys.path:
-        sys.path.append(module_path)
-    from app.tasks.notifications import send_email_message
-    print(send_email_message)
+    print('s')
