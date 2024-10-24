@@ -7,4 +7,4 @@ celery_app = Celery('car_shering')
 celery_app.config_from_object('celery_config')
 
 # Автоматическая регистрация задач из модуля
-celery_app.autodiscover_tasks(['notifications'])
+celery_app.autodiscover_tasks(['tasks'])
