@@ -4,9 +4,8 @@ from sqlalchemy.ext.asyncio import (
     create_async_engine, async_sessionmaker, AsyncSession
 )
 from sqlalchemy import select, update, delete
-
-from models import User
-from config import DB_URL
+from .models.users_model import User
+from app.config import DB_URL
 
 engine = create_async_engine(DB_URL, echo=True)
 

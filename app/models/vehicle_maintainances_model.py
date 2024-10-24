@@ -4,7 +4,7 @@ from typing import TYPE_CHECKING
 from sqlalchemy import Integer, Enum, DateTime, ForeignKey
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
-from schemas import MaintenanceStatus
+from ..schemas import MaintenanceStatus
 from .base_model import Base
 if TYPE_CHECKING:
     from .services_model import Service

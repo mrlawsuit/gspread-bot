@@ -5,7 +5,8 @@ from sqlalchemy import Integer, Enum, FLOAT, DateTime, ForeignKey
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from .base_model import Base
-from schemas import BookingStatus
+from ..schemas import BookingStatus
+
 
 if TYPE_CHECKING:
     from .users_model import User
