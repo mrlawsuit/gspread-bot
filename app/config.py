@@ -13,5 +13,10 @@ SMTP_PORT = os.getenv('SMTP_PORT')
 
 SMTP_PASS = os.getenv('SMTP_PASS')
 
-if __name__ == '__main__':
-    print(SENDER_EMAIL)
+SMS_SENDER_EMAIL = os.getenv('SMS_SENDER_EMAIL')
+
+SMS_API = os.getenv('SMS_API')
+
+SMS_SIGN = os.getenv('SMS_SIGN')
+
+SMS_URL = os.getenv('SMS_URL')

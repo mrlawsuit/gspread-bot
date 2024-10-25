@@ -5,5 +5,7 @@ alembic
 uvicorn
 pytest
 httpx
-dramatiq
 python-dotenv
+celery[redis]
+aiosmtplib
+pytest-asyncio

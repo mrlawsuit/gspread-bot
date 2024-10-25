@@ -35,11 +35,11 @@ services:
       - "5050:80"
     depends_on:
       - db
-  # worker:
-  #   build: .
-  #   command: celery -A celery_app worker --loglevel=info
-  #   depends_on:
-  #     - db
+  worker:
+    build: .
+    command: celery -A celery_app worker --loglevel=info
+    depends_on:
+      - db
   #     - redis
   # redis:
   #   image: 'redis:alpine'
@@ -51,9 +51,5 @@ services:
     restart: no
     depends_on:
       - db
-    volumes:
-      - ./app:/app
-      - ./alembic.ini:/app/alembic.ini
-      - ./alembic:/app/alembic
 volumes:
   postgres_data:

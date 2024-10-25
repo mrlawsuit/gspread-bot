@@ -1,8 +1,12 @@
+from typing import TYPE_CHECKING
+
 from sqlalchemy import String, Integer, BigInteger
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from .base_model import Base
-from .services_model import Service
+
+if TYPE_CHECKING:
+    from .services_model import Service
 
 
 class Workshop(Base):

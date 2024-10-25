@@ -1,7 +1,7 @@
 from sqlalchemy import String, Integer, Enum, FLOAT
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
-from schemas import CarStatus
+from ..schemas import CarStatus
 from .base_model import Base
 from .bookings_model import Booking
 

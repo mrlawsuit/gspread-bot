@@ -3,7 +3,7 @@ from typing import List
 from sqlalchemy import String, Integer, Enum, Boolean, BigInteger
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
-from schemas import Role
+from ..schemas import Role
 from .base_model import Base
 from .bookings_model import Booking
 
