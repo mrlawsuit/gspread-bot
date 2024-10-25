@@ -14,6 +14,7 @@ from app.tasks.notifications import send_email_message,send_sms
 #from ...alembic.env import target_metadata
 
 
+# тест рассылки email
 @pytest.mark.asyncio
 @patch('app.tasks.notifications.config')
 @patch('app.tasks.notifications.database.get_session')
@@ -56,11 +57,12 @@ async def test_send_email_message_success(
     assert result == 'Email sent successfully to receiver.'
 
 
+# негативный тест без почты
 @pytest.mark.asyncio
 @patch('app.tasks.notifications.database.get_session')
 @patch('app.tasks.notifications.database.get_user_by_id_db')
 async def test_send_email_message_no_email(
-    mock_get_user_by_id_db, 
+    mock_get_user_by_id_db,
     mock_get_session
 ):
     # Mock user without email
@@ -119,3 +121,27 @@ async def test_send_sms_success(
     mock_get_user_by_id_db.assert_called_once_with(mock_session, 1)
     mock_httpx_instance.get.assert_awaited_once()
     mock_response.json.assert_called_once()
+
+
+# негативный тест тест без номера
+@pytest.mark.asyncio
+@patch('app.tasks.notifications.database.get_session')
+@patch('app.tasks.notifications.database.get_user_by_id_db')
+async def test_send_sms_no_phone(
+    mock_get_user_by_id_db, 
+    mock_get_session
+):
+    # Mock user without phone number
+    mock_user = Mock()
+    mock_user.phone = None
+    mock_get_user_by_id_db.return_value = mock_user
+
+    # Mock database session
+    mock_session = AsyncMock()
+    mock_get_session.return_value.__aenter__.return_value = mock_session
+
+    # Call the task and expect ValueError
+    with pytest.raises(ValueError) as exc_info:
+        await send_sms(user_id=1, message='Test Message')
+
+    assert str(exc_info.value) == 'Телефон пользователя не найден.'
