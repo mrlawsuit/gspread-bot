@@ -3,8 +3,8 @@ from typing import List, AsyncGenerator
 from sqlalchemy.ext.asyncio import (
     create_async_engine, async_sessionmaker, AsyncSession
 )
-from sqlalchemy import select, update, delete
-from .models import User, Vehicle
+from sqlalchemy import select, update, delete, desc
+from .models import User, Vehicle, VehicleMaintenance
 from app.config import DB_URL
 
 engine = create_async_engine(DB_URL, echo=True)
@@ -18,11 +18,24 @@ async def get_session() -> AsyncGenerator[AsyncSession, None]:
         yield session
 
 
+async def get_maintainance_by_id(session: AsyncSession, vehicle_id: int):
+    result = await session.execute(
+        select(VehicleMaintenance).
+        where(VehicleMaintenance.vehicle_id == vehicle_id).
+        order_by(desc(VehicleMaintenance.id))
+    )
+    maintainance = result.scalars().first()
+    if not maintainance:
+        raise ValueError('У машины не проводилось обслуживания')
+    return maintainance
+
+
 async def get_all_available_vehicles(
         session: AsyncSession
 ):
     result = await session.execute(
-        select(Vehicle).where(Vehicle.status == 'available')
+        select(Vehicle).
+        where(Vehicle.status == 'available')
     )
     vehicles = result.all()
     if not vehicles:
@@ -34,7 +47,10 @@ async def get_user_by_id_db(
         session: AsyncSession,
         id: int
 ):
-    result = await session.execute(select(User).where(User.id == id))
+    result = await session.execute(
+        select(User).
+        where(User.id == id)
+    )
     user = result.scalar_one_or_none()
     if not user:
         raise ValueError('Нет такого пользователя')
