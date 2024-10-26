@@ -70,6 +70,7 @@ def upgrade() -> None:
     sa.Column('vehicle_id', sa.Integer(), nullable=False),
     sa.Column('workshop_id', sa.Integer(), nullable=False),
     sa.Column('service_date', sa.DateTime(timezone=True), nullable=False),
+    sa.Column('current_mileage', sa.Integer(), nullable=False),
     sa.Column('status', sa.Enum('planned', 'in_process', 'done', name='maintaincestatus'), nullable=False),
     sa.ForeignKeyConstraint(['vehicle_id'], ['vehicles.id'], ondelete='CASCADE'),
     sa.ForeignKeyConstraint(['workshop_id'], ['workshops.id'], ondelete='CASCADE'),
