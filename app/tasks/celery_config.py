@@ -12,7 +12,7 @@ accept_content = ['json']
 
 beat_schedule = {
     'check_vehicle_meintainance': {
-        'task': 'maintaninance_and_analitics.check_vehicle_maintainance',
+        'task': 'maintaninance_and_analitics.maintenance_needed',
         'schedule': crontab(hour=0, minute=0)
     },
     'generate_reports': {
