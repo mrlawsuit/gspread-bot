@@ -1,10 +1,5 @@
-import time
+l = [1,2,3,4,5]
 
+l = tuple(l)
 
-def func():
-    for i in range(100):
-        print(i)
-        time.sleep(10)
-
-if __name__ == '__main__':
-    func()
+print(l)

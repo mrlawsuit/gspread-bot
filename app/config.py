@@ -22,3 +22,5 @@ SMS_SIGN = os.getenv('SMS_SIGN')
 SMS_URL = os.getenv('SMS_URL')
 
 mileage_threshold = 10000
+
+days_maintenance_threshold = 182

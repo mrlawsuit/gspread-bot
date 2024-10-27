@@ -1,29 +1,27 @@
-from datetime import datetime, timedelta, UTC
-
+from datetime import datetime, UTC
 from celery import shared_task
-from sqlalchemy.orm import Session
-
-from ..models import Vehicle, VehicleMaintenance
-from .. import database
-from .. import config
+from .. import database as db
+from ..config import mileage_threshold, days_maintenance_threshold
 
 
 @shared_task
-async def check_vehicle_maintenance():
-    async with database.get_session() as session:
-        vehicles = await database.get_all_available_vehicles(session)
-        for vehicle in vehicles:
-            if maintenance_needed(vehicle):
-                schedule_maintenance()
-
-
-
-async def maintenance_needed(vehicle_id: Vehicle):
-    async with database.get_session() as session:
-        maintenance = await database.get_maintenance_by_id(session, vehicle_id)
-        date = maintenance.service_date
-        if datetime.now(UTC) - date > 6:
-            return True
-        
-
-
+async def maintenance_needed() -> tuple:
+    maintenances = {}
+    vehicles = await db.get_available_vehicles()
+    for vehicle in vehicles:
+        check = await db.maintenance_status_check(vehicle.id)
+        if check:
+            maintenance_data = await db.get_last_maintenance_by_id(vehicle.id)
+            maintenances[(vehicle.id, vehicle.mileage)] = maintenance_data
+    vehicles_list = []
+    # key - кортеж из id и пробега,
+    # value - кортеж из даты и пробега на дату последнего обслуживания
+    for key, value in maintenances.items():
+        date_difference = datetime.now(UTC) - value[0]
+        mile_difference = key[1] - value[1]
+        if (
+            date_difference.days >= days_maintenance_threshold or
+            mile_difference >= mileage_threshold
+        ):
+            vehicles_list.append(key[0])
+    return tuple(vehicles_list)
