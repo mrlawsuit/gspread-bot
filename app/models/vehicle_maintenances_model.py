@@ -11,7 +11,7 @@ if TYPE_CHECKING:
 
 
 class VehicleMaintenance(Base):
-    __tablename__ = 'maintenance'
+    __tablename__ = 'maintenances'
     id: Mapped[int] = mapped_column(Integer, primary_key=True)
     vehicle_id: Mapped[int] = mapped_column(
         Integer,
@@ -22,12 +22,13 @@ class VehicleMaintenance(Base):
         ForeignKey('workshops.id', ondelete='CASCADE')
     )
     service_date: Mapped[datetime] = mapped_column(DateTime(timezone=True))
+    current_mileage: Mapped[int] = mapped_column(Integer, nullable=False)
     status: Mapped['MaintenanceStatus'] = mapped_column(
         Enum(MaintenanceStatus)
     )
 
     services: Mapped['Service'] = relationship(
         'Service',
-        secondary='maintenance_services',
+        secondary='maintenances_services',
         back_populates='maintenances'
     )

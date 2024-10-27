@@ -4,10 +4,8 @@ import aiosmtplib
 from celery import shared_task
 from email.mime.text import MIMEText
 
-#import app.database as database
 from .. import config
 from .. import database
-#import app.config as config
 
 
 @shared_task

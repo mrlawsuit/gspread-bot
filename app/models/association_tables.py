@@ -4,12 +4,12 @@ from .base_model import Base
 # вспомагательные таблицы
 # многие ко многим services <-> maintenance
 maintenances_services = Table(
-    'maintenance_services',
+    'maintenances_services',
     Base.metadata,
     Column(
         'maintenance_id',
         Integer,
-        ForeignKey('maintenance.id', ondelete='CASCADE'),
+        ForeignKey('maintenances.id', ondelete='CASCADE'),
         primary_key=True
     ),
     Column(

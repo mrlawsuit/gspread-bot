@@ -18,17 +18,16 @@ async def get_session() -> AsyncGenerator[AsyncSession, None]:
         yield session
 
 
-async def get_maintainance_by_id(session: AsyncSession, vehicle_id: int):
+async def get_maintenance_by_id(session: AsyncSession, vehicle_id: int):
     result = await session.execute(
         select(VehicleMaintenance).
         where(VehicleMaintenance.vehicle_id == vehicle_id).
         order_by(desc(VehicleMaintenance.id))
     )
-    maintainance = result.scalars().first()
-    if not maintainance:
-        raise ValueError('У машины не проводилось обслуживания')
-    return maintainance
-
+    maintenance = result.scalars().first()
+    if not maintenance:
+        raise ValueError('У машины ещё не проводилось обслуживания')
+    return maintenance
 
 async def get_all_available_vehicles(
         session: AsyncSession
