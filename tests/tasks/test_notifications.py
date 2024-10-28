@@ -9,9 +9,6 @@ import httpx
 import pytest
 from unittest.mock import AsyncMock, patch, Mock
 from app.tasks.notifications import send_email_message,send_sms
-#from app.tasks.notifications import send_email_message
-#from ...app.tasks.notifications import send_email_message
-#from ...alembic.env import target_metadata
 
 
 # тест рассылки email

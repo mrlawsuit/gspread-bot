@@ -45,11 +45,11 @@ services:
     command: celery -A celery_app beat --loglevel=info
     depends_on:
       - db
-  #     - redis
-  # redis:
-  #   image: 'redis:alpine'
-  #   ports:
-  #     - '6380:6379'
+      - redis
+  redis:
+    image: 'redis:alpine'
+    ports:
+      - '6380:6379'
   alembic:
     build: .
     command: alembic upgrade head

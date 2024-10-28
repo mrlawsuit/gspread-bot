@@ -6,7 +6,7 @@ from sqlalchemy.ext.asyncio import (
 from contextlib import asynccontextmanager
 from sqlalchemy import select, update, delete, desc, or_
 from .models import User, Vehicle, VehicleMaintenance
-from app.config import DB_URL
+from .config import DB_URL
 
 engine = create_async_engine(DB_URL, echo=True)
 
