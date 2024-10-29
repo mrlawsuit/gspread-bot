@@ -8,7 +8,7 @@ if module_path not in sys.path:
 import httpx
 import pytest
 from unittest.mock import AsyncMock, patch, Mock
-from app.tasks.notifications import send_email_message,send_sms
+from app.tasks.notifications import send_email_message, send_sms
 
 
 # тест рассылки email

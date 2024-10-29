@@ -8,6 +8,7 @@ from ..config import mileage_threshold, days_maintenance_threshold
 async def maintenance_needed() -> tuple:
     maintenances = {}
     vehicles = await db.get_available_vehicles()
+    print(f'Отладочное {await db.get_available_vehicles()}')  # добавлено для отладки
     for vehicle in vehicles:
         check = await db.maintenance_status_check(vehicle.id)
         if check:
@@ -25,3 +26,7 @@ async def maintenance_needed() -> tuple:
         ):
             vehicles_list.append(key[0])
     return tuple(vehicles_list)
+
+
+if __name__ == '__main__':
+    print()
