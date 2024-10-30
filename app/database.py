@@ -4,9 +4,11 @@ from sqlalchemy.ext.asyncio import (
     create_async_engine, async_sessionmaker, AsyncSession
 )
 from contextlib import asynccontextmanager
-from sqlalchemy import select, update, delete, desc, or_
+from sqlalchemy import select, update, delete, desc, or_, insert
 from .models import User, Vehicle, VehicleMaintenance
 from .config import DB_URL
+from .schemas import CreateMaintenance
+
 
 engine = create_async_engine(DB_URL, echo=True)
 
@@ -65,8 +67,20 @@ async def get_last_maintenance_by_id(vehicle_id: int):
         return (maintenance.service_date, maintenance.current_mileage)
 
 
+async def add_maintenance(maintenance: CreateMaintenance):
+    async with async_session() as session:
+        new_maintenance = maintenance.model_dump()
+        await session.add(VehicleMaintenance(**new_maintenance))
+        await session.commit()
 
 
+async def get_vehicle_by_id(vehicle_id: int):
+    async with async_session() as session:
+        result = await session.execute(
+            select(Vehicle).where(Vehicle.id == vehicle_id)
+        )
+        vehicle = result.scalar_one_or_none()
+        return vehicle
 
 
 async def get_user_by_id_db(
