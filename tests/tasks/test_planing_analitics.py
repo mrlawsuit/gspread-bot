@@ -7,7 +7,7 @@ if module_path not in sys.path:
 
 import pytest
 from unittest.mock import AsyncMock, patch, Mock
-from app.tasks.maintenance_and_analitics import maintenance_needed
+from app.tasks.planing_and_analitics import maintenance_needed
 
 
 @pytest.mark.asyncio

@@ -1,11 +1,14 @@
 from datetime import datetime, UTC, timedelta
 
+import redis
 from celery import shared_task
 
 from .. import database as db
-from ..config import mileage_threshold, days_maintenance_threshold, current_workshop
-from ..models.vehicle_maintenances_model import VehicleMaintenance
-from ..models.vehicles_model import Vehicle 
+from ..config import (
+    mileage_threshold,
+    days_maintenance_threshold,
+    current_workshop
+)
 from ..schemas import CreateMaintenance, MaintenanceStatus
 
 
@@ -26,6 +29,8 @@ async def maintenance_needed():
         ):
             await schedule_maintenance(key[0])
             vehicles_list.append(key[0])
+    redis_tool = redis.StrictRedis(host='localhost', port=6379, db=1)
+    redis_tool.set(datetime.now(UTC), vehicles_list)
     return tuple(vehicles_list)
 
 
@@ -46,7 +51,8 @@ async def get_vehicles_without_actual_maintenance() -> dict:
 
 
 async def schedule_maintenance(vehicle_id: int):
-    '''Создает запись на обслуживание в БД с датой на 7 дней от сегодняшнего.'''
+    '''Создает запись на обслуживание в БД с датой на 7 дней от сегодняшнего.
+    Мастерская определяется константой'''
     vehicle = await db.get_vehicle_by_id(vehicle_id)
     new_maintenance = CreateMaintenance(
         vehicle_id=vehicle.id,
