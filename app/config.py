@@ -24,3 +24,4 @@ SMS_URL = os.getenv('SMS_URL')
 mileage_threshold = 10000
 
 days_maintenance_threshold = 182
+current_workshop = 1

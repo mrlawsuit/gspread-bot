@@ -1,19 +1,19 @@
-from datetime import datetime, UTC
+from datetime import datetime, UTC, timedelta
+
 from celery import shared_task
+
 from .. import database as db
-from ..config import mileage_threshold, days_maintenance_threshold
+from ..config import mileage_threshold, days_maintenance_threshold, current_workshop
+from ..models.vehicle_maintenances_model import VehicleMaintenance
+from ..models.vehicles_model import Vehicle 
+from ..schemas import CreateMaintenance, MaintenanceStatus
 
 
 @shared_task
-async def maintenance_needed() -> tuple:
-    
-    maintenances = {}
-    vehicles = await db.get_available_vehicles()
-    for vehicle in vehicles:
-        check = await db.maintenance_status_check(vehicle.id)
-        if check:
-            maintenance_data = await db.get_last_maintenance_by_id(vehicle.id)
-            maintenances[(vehicle.id, vehicle.mileage)] = maintenance_data
+async def maintenance_needed():
+    '''Проверяет нужно ли автомобилю обслуживание
+    по пробегу, либо по времени последнего обслуживания'''
+    maintenances = await get_vehicles_without_actual_maintenance()
     vehicles_list = []
     # key - кортеж из id и пробега,
     # value - кортеж из даты и пробега на дату последнего обслуживания
@@ -24,9 +24,35 @@ async def maintenance_needed() -> tuple:
             date_difference.days >= days_maintenance_threshold or
             mile_difference >= mileage_threshold
         ):
+            await schedule_maintenance(key[0])
             vehicles_list.append(key[0])
     return tuple(vehicles_list)
 
 
-if __name__ == '__main__':
-    print()
+async def get_vehicles_without_actual_maintenance() -> dict:
+    '''Достает свободные автомобили из базы,
+    проверяет на наличие запланированного,
+    либо длящегося обслуживания,
+    возвращает словарь с ключем в виде кортежа (id, пробег)
+    и значением - датой последнего совершенного обслуживания '''
+    maintenances = {}
+    vehicles = await db.get_available_vehicles()
+    for vehicle in vehicles:
+        check = await db.maintenance_status_check(vehicle.id)
+        if check:
+            maintenance_data = await db.get_last_maintenance_by_id(vehicle.id)
+            maintenances[(vehicle.id, vehicle.mileage)] = maintenance_data
+    return maintenances
+
+
+async def schedule_maintenance(vehicle_id: int):
+    '''Создает запись на обслуживание в БД с датой на 7 дней от сегодняшнего.'''
+    vehicle = await db.get_vehicle_by_id(vehicle_id)
+    new_maintenance = CreateMaintenance(
+        vehicle_id=vehicle.id,
+        workshop_id=current_workshop,
+        service_date=datetime.now(UTC) + timedelta(days=7),
+        current_mileage=vehicle.mileage,
+        status=MaintenanceStatus.planned
+    )
+    await db.add_maintenance(new_maintenance)

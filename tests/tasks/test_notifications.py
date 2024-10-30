@@ -36,7 +36,7 @@ async def test_send_email_message_success(
 
     # Mock database session
     mock_session = AsyncMock()
-    mock_get_session.return_value.__aenter__.return_value = mock_session
+    mock_get_session.__aenter__.return_value = mock_session
 
      # Mock SMTP client
     mock_smtp_instance = AsyncMock()
