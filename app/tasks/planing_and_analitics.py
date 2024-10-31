@@ -3,6 +3,7 @@ from datetime import datetime, UTC, timedelta
 import redis
 from celery import shared_task
 
+from .reports import create_report
 from .. import database as db
 from ..config import (
     mileage_threshold,
@@ -63,3 +64,9 @@ async def schedule_maintenance(vehicle_id: int):
         status=MaintenanceStatus.planned
     )
     await db.add_maintenance(new_maintenance)
+
+
+@shared_task
+async def generate_report():
+    report_data = await db.get_maintenances_per_month()
+    create_report('maintenance_report', report_data)

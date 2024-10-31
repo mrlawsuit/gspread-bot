@@ -9,3 +9,4 @@ python-dotenv
 celery[redis]
 aiosmtplib
 pytest-asyncio
+reportlab

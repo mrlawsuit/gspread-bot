@@ -1,14 +1,17 @@
 from typing import AsyncGenerator
+from datetime import datetime, UTC, timedelta
 
 from sqlalchemy.ext.asyncio import (
-    create_async_engine, async_sessionmaker, AsyncSession
+    create_async_engine,
+    async_sessionmaker,
+    AsyncSession
 )
 from contextlib import asynccontextmanager
-from sqlalchemy import select, desc, or_
+from sqlalchemy import select, desc, or_, and_ 
 
 from .models import User, Vehicle, VehicleMaintenance
 from .config import DB_URL
-from .schemas import CreateMaintenance, Role
+from .schemas import CreateMaintenance, Role, MaintenanceStatus
 
 
 engine = create_async_engine(DB_URL, echo=True)
@@ -112,3 +115,17 @@ async def get_user_by_id_db(
     if not user:
         raise ValueError('Нет такого пользователя')
     return user
+
+
+async def get_maintenances_per_month():
+    time_period = datetime.now(UTC) - timedelta(days=30)
+    async with async_session() as session:
+        result = await session.execute(
+            select(VehicleMaintenance).
+            where(
+                VehicleMaintenance.service_date >= time_period,
+                and_(VehicleMaintenance.status == MaintenanceStatus.done)
+            )
+        )
+        maintenances = result.scalars().all()
+    return maintenances
