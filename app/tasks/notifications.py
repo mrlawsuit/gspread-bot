@@ -9,24 +9,25 @@ from .. import database
 
 
 @shared_task
-async def send_email_message(user_id, subject, message):
+async def send_email_message(users_id, subject, message):
     async with database.get_session() as session:
-        user = await database.get_user_by_id_db(session, user_id)
-        email = user.email
-        msg = MIMEText(message)
-        msg['Subject'] = subject
-        msg['From'] = config.SENDER_EMAIL
-        msg['To'] = email
+        for user_id in users_id:
+            user = await database.get_user_by_id_db(session, user_id)
+            email = user.email
+            msg = MIMEText(message)
+            msg['Subject'] = subject
+            msg['From'] = config.SENDER_EMAIL
+            msg['To'] = email
 
-        email_client = aiosmtplib.SMTP(
-            hostname=config.SMTP_HOST, port=config.SMTP_PORT, use_tls=True
-        )
-        await email_client.connect()
-        await email_client.login(config.SENDER_EMAIL, config.SMTP_PASS)
-        await email_client.send_message(msg)
-        await email_client.quit()
+            email_client = aiosmtplib.SMTP(
+                hostname=config.SMTP_HOST, port=config.SMTP_PORT, use_tls=True
+            )
+            await email_client.connect()
+            await email_client.login(config.SENDER_EMAIL, config.SMTP_PASS)
+            await email_client.send_message(msg)
+            await email_client.quit()
 
-    return 'Email sent successfully to receiver.'
+    return 'Emails sent successfully to receivers.'
 
 
 @shared_task
