@@ -13,7 +13,7 @@ from app.tasks.planing_and_analitics import maintenance_needed
 @pytest.mark.asyncio
 async def test_no_available_vehicles():
     with patch(
-        'app.tasks.maintenance_and_analitics.db.get_available_vehicles',
+        'app.tasks.planing_and_analitics.db.get_available_vehicles',
         new_callable=AsyncMock
     ) as mock_get_available_vehicles:
         mock_get_available_vehicles.return_value = []
@@ -24,11 +24,11 @@ async def test_no_available_vehicles():
 @pytest.mark.asyncio
 async def test_all_vehicles_have_active_maintenance():
     with patch(
-        'app.tasks.maintenance_and_analitics.db.get_available_vehicles',
+        'app.tasks.planing_and_analitics.db.get_available_vehicles',
         new_callable=AsyncMock
     ) as mock_get_available_vehicles, \
          patch(
-             'app.tasks.maintenance_and_analitics.db.maintenance_status_check',
+             'app.tasks.planing_and_analitics.db.maintenance_status_check',
              new_callable=AsyncMock
          ) as mock_maintenance_status_check:
         vehicle = Mock()
@@ -43,15 +43,15 @@ async def test_all_vehicles_have_active_maintenance():
 @pytest.mark.asyncio
 async def test_vehicle_needs_maintenance_due_to_date():
     with patch(
-        'app.tasks.maintenance_and_analitics.db.get_available_vehicles',
+        'app.tasks.planing_and_analitics.db.get_available_vehicles',
         new_callable=AsyncMock
     ) as mock_get_available_vehicles, \
          patch(
-             'app.tasks.maintenance_and_analitics.db.maintenance_status_check',
+             'app.tasks.planing_and_analitics.db.maintenance_status_check',
              new_callable=AsyncMock
          ) as mock_maintenance_status_check, \
          patch(
-             'app.tasks.maintenance_and_analitics.db.get_last_maintenance_by_id',
+             'app.tasks.planing_and_analitics.db.get_last_maintenance_by_id',
              new_callable=AsyncMock
          ) as mock_get_last_maintenance_by_id:
         vehicle = Mock()
@@ -72,15 +72,15 @@ async def test_vehicle_needs_maintenance_due_to_date():
 @pytest.mark.asyncio
 async def test_vehicle_needs_maintenance_due_to_mileage():
     with patch(
-        'app.tasks.maintenance_and_analitics.db.get_available_vehicles',
+        'app.tasks.planing_and_analitics.db.get_available_vehicles',
         new_callable=AsyncMock
     ) as mock_get_available_vehicles, \
          patch(
-             'app.tasks.maintenance_and_analitics.db.maintenance_status_check',
+             'app.tasks.planing_and_analitics.db.maintenance_status_check',
              new_callable=AsyncMock
          ) as mock_maintenance_status_check, \
          patch(
-             'app.tasks.maintenance_and_analitics.db.get_last_maintenance_by_id',
+             'app.tasks.planing_and_analitics.db.get_last_maintenance_by_id',
              new_callable=AsyncMock
          ) as mock_get_last_maintenance_by_id:
         vehicle = Mock()
@@ -101,15 +101,15 @@ async def test_vehicle_needs_maintenance_due_to_mileage():
 @pytest.mark.asyncio
 async def test_vehicle_does_not_need_maintenance():
     with patch(
-        'app.tasks.maintenance_and_analitics.db.get_available_vehicles',
+        'app.tasks.planing_and_analitics.db.get_available_vehicles',
         new_callable=AsyncMock
     ) as mock_get_available_vehicles, \
          patch(
-             'app.tasks.maintenance_and_analitics.db.maintenance_status_check',
+             'app.tasks.planing_and_analitics.db.maintenance_status_check',
              new_callable=AsyncMock
          ) as mock_maintenance_status_check, \
          patch(
-             'app.tasks.maintenance_and_analitics.db.get_last_maintenance_by_id',
+             'app.tasks.planing_and_analitics.db.get_last_maintenance_by_id',
              new_callable=AsyncMock
          ) as mock_get_last_maintenance_by_id:
         vehicle = Mock()

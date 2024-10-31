@@ -1,13 +1,14 @@
-from typing import List, AsyncGenerator
+from typing import AsyncGenerator
 
 from sqlalchemy.ext.asyncio import (
     create_async_engine, async_sessionmaker, AsyncSession
 )
 from contextlib import asynccontextmanager
-from sqlalchemy import select, update, delete, desc, or_, insert
+from sqlalchemy import select, desc, or_, and_
+
 from .models import User, Vehicle, VehicleMaintenance
 from .config import DB_URL
-from .schemas import CreateMaintenance
+from .schemas import CreateMaintenance, Role
 
 
 engine = create_async_engine(DB_URL, echo=True)
@@ -15,10 +16,12 @@ engine = create_async_engine(DB_URL, echo=True)
 
 async_session = async_sessionmaker(engine, expire_on_commit=False)
 
+
 @asynccontextmanager
 async def get_session() -> AsyncGenerator[AsyncSession, None]:
     async with async_session() as session:
         yield session
+
 
 # хэндлеры для таблицы машин и обслуживания
 async def get_available_vehicles():
@@ -67,6 +70,7 @@ async def get_last_maintenance_by_id(vehicle_id: int):
         return (maintenance.service_date, maintenance.current_mileage)
 
 
+# добавляет забись на обслуживание
 async def add_maintenance(maintenance: CreateMaintenance):
     async with async_session() as session:
         new_maintenance = maintenance.model_dump()
@@ -81,6 +85,19 @@ async def get_vehicle_by_id(vehicle_id: int):
         )
         vehicle = result.scalar_one_or_none()
         return vehicle
+
+
+async def get_admin_emails() -> list:
+    async with async_session() as session:
+        result = await session.execute(
+            select(User.email).
+            where(
+                User.role == Role.admin,
+                User.acc_status
+            )
+        )
+        email = result.scalars().all()
+    return email
 
 
 async def get_user_by_id_db(
