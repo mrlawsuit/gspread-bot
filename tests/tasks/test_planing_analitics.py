@@ -15,8 +15,13 @@ async def test_no_available_vehicles():
     with patch(
         'app.tasks.planing_and_analitics.db.get_available_vehicles',
         new_callable=AsyncMock
-    ) as mock_get_available_vehicles:
+    ) as mock_get_available_vehicles, \
+        patch(
+            'app.tasks.planing_and_analitics.get_last_outdated_maintenance',
+            new_callable=AsyncMock
+        ) as mock_get_last_outdated_maintenance:
         mock_get_available_vehicles.return_value = []
+        mock_get_last_outdated_maintenance.return_value = {}
         result = await maintenance_needed()
         assert result == ()
 
@@ -43,28 +48,13 @@ async def test_all_vehicles_have_active_maintenance():
 @pytest.mark.asyncio
 async def test_vehicle_needs_maintenance_due_to_date():
     with patch(
-        'app.tasks.planing_and_analitics.db.get_available_vehicles',
+        'app.tasks.planing_and_analitics.get_last_outdated_maintenance',
         new_callable=AsyncMock
-    ) as mock_get_available_vehicles, \
-         patch(
-             'app.tasks.planing_and_analitics.db.maintenance_status_check',
-             new_callable=AsyncMock
-         ) as mock_maintenance_status_check, \
-         patch(
-             'app.tasks.planing_and_analitics.db.get_last_maintenance_by_id',
-             new_callable=AsyncMock
-         ) as mock_get_last_maintenance_by_id:
+    ) as mock_get_last_outdated_maintenance:
         vehicle = Mock()
         vehicle.id = 1
         vehicle.mileage = 5000
-        mock_get_available_vehicles.return_value = [vehicle]
-        mock_maintenance_status_check.return_value = True  # Нет активных записей об обслуживании
-        last_maintenance_date = datetime.now(UTC) - timedelta(days=183)
-        last_maintenance_mileage = 2000
-        mock_get_last_maintenance_by_id.return_value = (
-            last_maintenance_date,
-            last_maintenance_mileage
-        )
+        mock_get_last_outdated_maintenance.return_value = {(1, 20000): vehicle}
         result = await maintenance_needed()
         assert result == (1,)
 
