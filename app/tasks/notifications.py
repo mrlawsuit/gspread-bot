@@ -11,7 +11,9 @@ from .. import database
 
 @shared_task
 async def send_maintenance_to_admins():
-    redis_tool = redis.StrictRedis(host='localhost', port=6379, db=1) 
+    '''Достает id пользователей с ролью admin,
+    пересылает им сообщение ссо списком авто, требующих обслуживания'''
+    redis_tool = redis.StrictRedis(**config.redis_config_for_db)
     async with database.get_session() as session:
         admins_id = await database.get_admins_id()
         for id in admins_id:
@@ -34,7 +36,7 @@ async def send_maintenance_to_admins():
             await email_client.send_message(msg)
             await email_client.quit()
 
-    return 'Email sent successfully to receiver.'
+    return 'Emails sent successfully to receivers.'
 
 
 @shared_task

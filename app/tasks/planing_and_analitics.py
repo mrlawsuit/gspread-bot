@@ -7,7 +7,8 @@ from .. import database as db
 from ..config import (
     mileage_threshold,
     days_maintenance_threshold,
-    current_workshop
+    current_workshop,
+    redis_config_for_db
 )
 from ..schemas import CreateMaintenance, MaintenanceStatus
 
@@ -29,7 +30,7 @@ async def maintenance_needed():
         ):
             await schedule_maintenance(key[0])
             vehicles_list.append(key[0])
-    redis_tool = redis.StrictRedis(host='localhost', port=6379, db=1)
+    redis_tool = redis.StrictRedis(**redis_config_for_db)
     redis_tool.set('vehicles_for_maintenance', vehicles_list)
     return tuple(vehicles_list)
 

@@ -4,7 +4,7 @@ from sqlalchemy.ext.asyncio import (
     create_async_engine, async_sessionmaker, AsyncSession
 )
 from contextlib import asynccontextmanager
-from sqlalchemy import select, desc, or_, and_
+from sqlalchemy import select, desc, or_
 
 from .models import User, Vehicle, VehicleMaintenance
 from .config import DB_URL
@@ -87,17 +87,17 @@ async def get_vehicle_by_id(vehicle_id: int):
         return vehicle
 
 
-async def get_admin_emails() -> list:
+async def get_admins_id() -> list:
     async with async_session() as session:
         result = await session.execute(
-            select(User.email).
+            select(User.id).
             where(
                 User.role == Role.admin,
                 User.acc_status
             )
         )
-        email = result.scalars().all()
-    return email
+        admins_id = result.scalars().all()
+    return admins_id
 
 
 async def get_user_by_id_db(
