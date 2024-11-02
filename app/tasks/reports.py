@@ -30,7 +30,7 @@ def create_report(filename, maintenances):
     for row in title.split('\n'):
         page.drawString(120, y_position, row)
 
-    body = f'За последний месяц было обслужено {len(maintenances)} автомобилей:'
+    body = f'За последний месяц было проведено {len(maintenances)} обслуживаний автомобилей:'
     for maintenance in maintenances:
         record = f'\n{maintenance.vehicle_id}, дата обслуживания {maintenance.service_date}, пробег на момент обслуживания {maintenance.current_mileage}'
         body += record
@@ -51,3 +51,7 @@ def create_report(filename, maintenances):
     else:
         page.showPage()
         y_position = 800
+
+    # Завершаем страницу и сохраняем PDF
+    page.showPage()
+    page.save()
