@@ -10,13 +10,13 @@ accept_content = ['json']
 
 
 beat_schedule = {
+    'weekly_check_vehicle_maintenance': {
+        'task': 'planing_and_analitics.maintenance_needed',
+        'schedule': crontab(hour=0, minute=0, day_of_week='sunday')
+    },
     'weekly_send_email_maintenance': {
         'task': 'notifications.send_maintenance_to_admins',
         'schedule': crontab(hour=1, minute=0, day_of_week='sunday')
-    },
-    'weekly_check_vehicle_meintainance': {
-        'task': 'planing_and_analitics.maintenance_needed',
-        'schedule': crontab(hour=0, minute=0, day_of_week='sunday')
     },
     'mounthly_generate_reports': {
         'task': 'planing_and_analitics.generate_reports',

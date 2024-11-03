@@ -37,12 +37,12 @@ services:
       - db
   worker:
     build: .
-    command: celery -A celery_app worker --loglevel=info
+    command: celery -A celery_app worker --loglevel=info --pool=async
     depends_on:
       - db
   beat:
     build: .
-    command: celery -A celery_app beat --loglevel=info
+    command: celery -A celery_app beat --loglevel=info --pool=async
     depends_on:
       - db
       - redis
