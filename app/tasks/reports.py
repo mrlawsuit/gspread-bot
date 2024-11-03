@@ -25,6 +25,8 @@ async def maintenance_report():
             f'было обслужено {len(maintenances)} автомобилей:<br/>'
         )
     for maintenance in maintenances:
+        print(f'проверка {maintenance}')
+        print(f'проверка 2 {maintenances}')
         vehicle = await db.get_vehicle_by_id(maintenance.vehicle_id)
         record = (
             f'<br/><br/>{vehicle.brand} {vehicle.model}. '

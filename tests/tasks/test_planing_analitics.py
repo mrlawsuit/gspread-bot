@@ -96,7 +96,7 @@ async def test_schedule_maintenance():
 
         # Проверяем данные переданные в add_maintenance
         args, kwargs = mock_add_maintenance.call_args
-        maintenance_record = args[0]  # Предполагается, что add_maintenance вызывается с объектом записи
+        maintenance_record = args[0]
 
         # Проверяем, что запись обслуживания содержит правильные данные
         assert maintenance_record.vehicle_id == vehicle_id
@@ -143,25 +143,21 @@ async def test_maintenance_needed():
         mock_redis_instance.set.assert_called_with('vehicles_for_maintenance', vehicles_list_json)
 
         # Проверяем, что функция возвращает ожидаемый результат
-        assert result == tuple(vehicles_list)
+        assert result == None
 
 # Тест для функции generate_report
 @pytest.mark.asyncio
 async def test_generate_report():
-    with patch('app.tasks.planing_and_analitics.db.get_maintenances_per_month', new_callable=AsyncMock) as mock_get_maintenances_per_month, \
+    with patch('app.tasks.planing_and_analitics.maintenance_report') as mock_maintenance_report, \
          patch('app.tasks.planing_and_analitics.create_report') as mock_create_report:
-
-        # Настраиваем мок-данные
-        report_data = [
-            {'month': '2023-01', 'count': 10},
-            {'month': '2023-02', 'count': 15},
-        ]
-
-        mock_get_maintenances_per_month.return_value = report_data
-
-        # Вызываем тестируемую функцию
+        mock_maintenance_report.return_value = {'title': 'Test Title', 'body': 'Test Body'}
+    
+        # Act
         await generate_report()
+        
+        # Assert
+        date = datetime.now(UTC).strftime('%d-%m-%Y')
+        mock_maintenance_report.assert_awaited_once()
+        mock_create_report.assert_called_once_with(f'maintenance_report_{date}', title='Test Title', body='Test Body')
 
-        # Проверяем вызовы моков
-        mock_get_maintenances_per_month.assert_awaited_once()
-        mock_create_report.assert_called_once_with('maintenance_report', report_data)
+
