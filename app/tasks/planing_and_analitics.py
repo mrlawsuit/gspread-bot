@@ -4,7 +4,7 @@ import json
 import redis
 from celery import shared_task
 
-from .reports import create_report
+from .reports import create_report, maintenance_report
 from .. import database as db
 from ..config import (
     mileage_threshold,
@@ -35,7 +35,6 @@ async def maintenance_needed():
     redis_tool = redis.StrictRedis(**redis_config_for_db)
     vehicles_list_json = json.dumps(vehicles_list)
     redis_tool.set('vehicles_for_maintenance', vehicles_list_json)
-    return tuple(vehicles_list)
 
 
 async def get_last_outdated_maintenance() -> dict:
@@ -70,5 +69,6 @@ async def schedule_maintenance(vehicle_id: int):
 
 @shared_task
 async def generate_report():
-    report_data = await db.get_maintenances_per_month()
-    create_report('maintenance_report', report_data)
+    date = datetime.now(UTC).strftime('%d-%m-%Y')
+    maintenances = await maintenance_report()
+    create_report(f'maintenance_report_{date}', **maintenances)
