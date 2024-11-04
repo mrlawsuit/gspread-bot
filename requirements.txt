@@ -10,3 +10,4 @@ celery[redis]
 aiosmtplib
 pytest-asyncio
 reportlab
+elasticsearch
