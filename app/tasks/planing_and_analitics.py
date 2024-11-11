@@ -4,6 +4,7 @@ import json
 import redis
 from celery import shared_task
 
+from ..services import maintenance_service
 from ..repositories import maintenances_repository, vehicles_repository
 from .reports import create_report, maintenance_report
 from .. import database as db
@@ -47,7 +48,7 @@ async def get_last_outdated_maintenance() -> dict:
     maintenances = {}
     vehicles = await vehicles_repository.get_available_vehicles()
     for vehicle in vehicles:
-        check = await maintenances_repository.maintenance_status_check(vehicle.id)
+        check = await maintenance_service.maintenance_status_check(vehicle.id)
         if check:
             maintenance_data = await maintenances_repository.get_last_maintenance_by_id(vehicle.id)
             maintenances[(vehicle.id, vehicle.mileage)] = maintenance_data

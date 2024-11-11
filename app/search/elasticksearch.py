@@ -3,7 +3,6 @@ from elasticsearch import AsyncElasticsearch
 from ..main import app
 from .. import models
 from . import mapping
-from ..repositories import user_repository
 
 
 elastic_client = AsyncElasticsearch(['http://elastic:9200'])
@@ -16,20 +15,33 @@ async def elastic_init(index, body):
         elastic_client.create(index=index, body=body)
 
 
-async def create_user_elastic(user: models.User):
-    doc = user.to_dict()
-    result = await elastic_client.index(index='users', body=doc)
+async def create_document_elastic(index: str, model: models.Base):
+    doc = model.to_dict()
+    result = await elastic_client.index(index=index, body=doc)
     return f'Document was add into elastic id is {result['_id']}'
 
 
-
-# async def create_user_elastic():
-#     await elastic_client.indices.create(
-#           index=mapping.user_index,
-#           mappings=mapping.user_mapping
-#     )
-# elastic_client.indices.
+def search_query_by_id(id):
+    return {
+        'query': {'match': {'id': id}}
+    }
 
 
-# async def update_user_elastic():
-#     await elastic_client.indices.
+def get_document(id, index):
+    body = search_query_by_id(id)
+    result = elastic_client.search(
+        index=index,
+        body=body
+    )
+    if not result:
+        raise ValueError('There is no documents with such index')
+    return result['hits']['hits'][0]['_id']
+
+
+async def update_document_elastic(
+        index: str,
+        update_body: dict,
+        id: int
+):
+    result = elastic_client.update(index=index, id=id, body=update_body)
+    return result['result']
