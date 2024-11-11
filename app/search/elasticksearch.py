@@ -11,8 +11,8 @@ app.state.elastic_client = elastic_client
 
 
 async def elastic_init(index, body):
-    if not elastic_client.exists(index):
-        elastic_client.create(index=index, body=body)
+    if not await elastic_client.exists(index):
+       await elastic_client.create(index=index, body=body)
 
 
 async def create_document_elastic(index: str, model: models.Base):
@@ -27,9 +27,9 @@ def search_query_by_id(id):
     }
 
 
-def get_document(id, index):
+async def get_document_id(id, index):
     body = search_query_by_id(id)
-    result = elastic_client.search(
+    result = await elastic_client.search(
         index=index,
         body=body
     )
@@ -43,5 +43,18 @@ async def update_document_elastic(
         update_body: dict,
         id: int
 ):
-    result = elastic_client.update(index=index, id=id, body=update_body)
+    elastic_id = await get_document_id(id=id, index=index)
+    result = await elastic_client.update(index=index, id=elastic_id, body=update_body)
     return result['result']
+
+
+async def delete_document_elastic(
+        index: str,
+        id: int
+):
+    elastic_id = await get_document_id(id=id, index=index)
+    result = await elastic_client.delete(index=index, id=elastic_id)
+    return result['result']
+    
+
+    
