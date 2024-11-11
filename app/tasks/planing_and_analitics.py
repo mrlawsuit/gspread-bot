@@ -4,6 +4,7 @@ import json
 import redis
 from celery import shared_task
 
+from ..repositories import maintenances_repository, vehicles_repository
 from .reports import create_report, maintenance_report
 from .. import database as db
 from ..config import (
@@ -44,11 +45,11 @@ async def get_last_outdated_maintenance() -> dict:
     возвращает словарь с ключем в виде кортежа (id, пробег)
     и значением - датой последнего совершенного обслуживания '''
     maintenances = {}
-    vehicles = await db.get_available_vehicles()
+    vehicles = await vehicles_repository.get_available_vehicles()
     for vehicle in vehicles:
-        check = await db.maintenance_status_check(vehicle.id)
+        check = await maintenances_repository.maintenance_status_check(vehicle.id)
         if check:
-            maintenance_data = await db.get_last_maintenance_by_id(vehicle.id)
+            maintenance_data = await maintenances_repository.get_last_maintenance_by_id(vehicle.id)
             maintenances[(vehicle.id, vehicle.mileage)] = maintenance_data
     return maintenances
 
@@ -56,7 +57,7 @@ async def get_last_outdated_maintenance() -> dict:
 async def schedule_maintenance(vehicle_id: int):
     '''Создает запись на обслуживание в БД с датой на 7 дней от сегодняшнего.
     Мастерская определяется константой'''
-    vehicle = await db.get_vehicle_by_id(vehicle_id)
+    vehicle = await vehicles_repository.get_vehicle_by_id(vehicle_id)
     new_maintenance = CreateMaintenance(
         vehicle_id=vehicle.id,
         workshop_id=current_workshop,
@@ -64,7 +65,7 @@ async def schedule_maintenance(vehicle_id: int):
         current_mileage=vehicle.mileage,
         status=MaintenanceStatus.planned
     )
-    await db.add_maintenance(new_maintenance)
+    await maintenances_repository.add_maintenance(new_maintenance)
 
 
 @shared_task

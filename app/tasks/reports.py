@@ -9,13 +9,12 @@ from reportlab.pdfbase import pdfmetrics
 from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
 from reportlab.platypus import Frame, Paragraph
 
-from .. import database as db
-from ..models import VehicleMaintenance
+from ..repositories import maintenances_repository, vehicles_repository
 
 
 async def maintenance_report():
 
-    maintenances = await db.get_maintenances_per_month()
+    maintenances = await maintenances_repository.get_maintenances_per_month()
     title = f'Отчет об обслуживании автомобилей в период с {
             (datetime.now(UTC) - timedelta(days=30)).strftime('%d-%m-%Y')
         } по {datetime.now(UTC).strftime('%d-%m-%Y')}'
@@ -27,7 +26,7 @@ async def maintenance_report():
     for maintenance in maintenances:
         print(f'проверка {maintenance}')
         print(f'проверка 2 {maintenances}')
-        vehicle = await db.get_vehicle_by_id(maintenance.vehicle_id)
+        vehicle = await vehicles_repository.get_vehicle_by_id(maintenance.vehicle_id)
         record = (
             f'<br/><br/>{vehicle.brand} {vehicle.model}. '
             f'Регистрационный знак - "{vehicle.plate}".'
