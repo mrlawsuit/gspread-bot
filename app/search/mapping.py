@@ -1,3 +1,5 @@
+# from .. import models
+
 user_mapping = {
     'mappings': {
         'properties': {
@@ -10,6 +12,15 @@ user_mapping = {
         }
     }
 }
+
+# user_index = {
+#         'id': models.User.id,
+#         'name': models.User.name,
+#         'email': models.User.email,
+#         'phone': models.User.phone,
+#         'role': models.User.role,
+#         'acc_status': models.User.acc_status
+#     }
 
 
 booking_mapping = {
@@ -87,6 +98,3 @@ workshop_mapping = {
         }
     }
 }
-
-    
-    

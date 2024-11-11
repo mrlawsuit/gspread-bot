@@ -7,7 +7,7 @@ from sqlalchemy.ext.asyncio import (
     AsyncSession
 )
 from contextlib import asynccontextmanager
-from sqlalchemy import select, desc, or_, and_ 
+from sqlalchemy import select, desc, or_, and_
 
 from .models import User, Vehicle, VehicleMaintenance
 from .config import DB_URL
