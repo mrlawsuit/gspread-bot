@@ -8,8 +8,7 @@ from ..models import VehicleMaintenance
 from ..database import async_session
 
 
-# вернет false, если есть акттивные заявки на обслуживание
-async def maintenance_status_check(vehicle_id: int):
+async def get_active_maintenances(vehicle_id: int):
     async with async_session() as session:
         result = await session.execute(
             select(VehicleMaintenance).
@@ -22,9 +21,7 @@ async def maintenance_status_check(vehicle_id: int):
             )
         )
         maintenances = result.scalars().all()
-        if maintenances:
-            return False
-        return True
+    return maintenances
 
 
 # вернет кортеж из даты обслуживания и пробега на момент обслуживания

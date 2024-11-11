@@ -1,14 +1,11 @@
 from typing import AsyncGenerator
 
+from contextlib import asynccontextmanager
 from sqlalchemy.ext.asyncio import (
     create_async_engine,
     async_sessionmaker,
     AsyncSession
 )
-from contextlib import asynccontextmanager
-<<<<<<< HEAD
-=======
->>>>>>> main
 
 from .config import DB_URL
 
