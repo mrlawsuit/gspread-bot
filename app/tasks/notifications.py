@@ -6,7 +6,8 @@ from celery import shared_task
 from email.mime.text import MIMEText
 
 from .. import config
-from .. import database
+from .. import database as db
+from ..repositories import user_repository
 
 
 @shared_task
@@ -14,10 +15,10 @@ async def send_maintenance_to_admins():
     '''Достает id пользователей с ролью admin,
     пересылает им сообщение ссо списком авто, требующих обслуживания'''
     redis_tool = redis.StrictRedis(**config.redis_config_for_db)
-    async with database.get_session() as session:
-        admins_id = await database.get_admins_id()
+    async with db.get_session() as session:
+        admins_id = await user_repository.get_admins_id()
         for id in admins_id:
-            user = await database.get_user_by_id_db(session, id)
+            user = await user_repository.get_user_by_id_db(session, id)
             email = user.email
             msg = MIMEText(
                 f'Необходимо записать следующие машины (id в таблице) на обслуживание: {
@@ -41,9 +42,9 @@ async def send_maintenance_to_admins():
 
 @shared_task
 async def send_email_message(users_id, subject, message):
-    async with database.get_session() as session:
+    async with db.get_session() as session:
         for user_id in users_id:
-            user = await database.get_user_by_id_db(session, user_id)
+            user = await user_repository.get_user_by_id_db(session, user_id)
             email = user.email
             msg = MIMEText(message)
             msg['Subject'] = subject
@@ -61,12 +62,10 @@ async def send_email_message(users_id, subject, message):
     return 'Emails sent successfully to receivers.'
 
 
-
-
 @shared_task
 async def send_sms(user_id, message):
-    async with database.get_session() as session:
-        user = await database.get_user_by_id_db(session, user_id)
+    async with db.get_session() as session:
+        user = await user_repository.get_user_by_id_db(session, user_id)
         phone = user.phone
         if not phone:
             raise ValueError("Телефон пользователя не найден.")
