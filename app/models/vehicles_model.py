@@ -1,4 +1,4 @@
-from sqlalchemy import String, Integer, Enum, FLOAT
+from sqlalchemy import String, Integer, Enum as SQLEnum, FLOAT
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from ..schemas import CarStatus
@@ -14,7 +14,7 @@ class Vehicle(Base):
     release: Mapped[int] = mapped_column(Integer)
     plate: Mapped[str] = mapped_column(String(65))
     mileage: Mapped[float] = mapped_column(FLOAT)
-    status: Mapped['CarStatus'] = mapped_column(Enum(CarStatus))
+    status: Mapped['CarStatus'] = mapped_column(SQLEnum(CarStatus))
 
     bookings: Mapped['Booking'] = relationship(
         'Booking',

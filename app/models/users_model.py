@@ -1,6 +1,6 @@
 from typing import List
 
-from sqlalchemy import String, Integer, Enum, Boolean, BigInteger
+from sqlalchemy import String, Integer, Enum as SQLEnum, Boolean, BigInteger
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from ..schemas import Role
@@ -14,7 +14,7 @@ class User(Base):
     name: Mapped[str] = mapped_column(String(128))
     email: Mapped[str] = mapped_column(String(128))
     phone: Mapped[str] = mapped_column(BigInteger)
-    role: Mapped['Role'] = mapped_column(Enum(Role))
+    role: Mapped['Role'] = mapped_column(SQLEnum(Role))
     acc_status: Mapped[bool] = mapped_column(Boolean)
 
     bookings: Mapped[List['Booking']] = relationship(

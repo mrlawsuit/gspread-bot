@@ -1,7 +1,7 @@
 from datetime import datetime
 from typing import TYPE_CHECKING
 
-from sqlalchemy import Integer, Enum, FLOAT, DateTime, ForeignKey
+from sqlalchemy import Integer, Enum as SQLEnum, FLOAT, DateTime, ForeignKey
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from .base_model import Base
@@ -24,7 +24,7 @@ class Booking(Base):
     )
     start_date: Mapped[datetime] = mapped_column(DateTime(timezone=True))
     end_date: Mapped[datetime] = mapped_column(DateTime(timezone=True))
-    status: Mapped[BookingStatus] = mapped_column(Enum(BookingStatus))
+    status: Mapped[BookingStatus] = mapped_column(SQLEnum(BookingStatus))
     price: Mapped[float] = mapped_column(FLOAT)
 
     user: Mapped['User'] = relationship('User', back_populates='bookings')

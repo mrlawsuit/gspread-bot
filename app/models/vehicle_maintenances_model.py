@@ -1,7 +1,7 @@
 from datetime import datetime
 from typing import TYPE_CHECKING
 
-from sqlalchemy import Integer, Enum, DateTime, ForeignKey
+from sqlalchemy import Integer, Enum as SQLEnum, DateTime, ForeignKey
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from ..schemas import MaintenanceStatus
@@ -24,7 +24,7 @@ class VehicleMaintenance(Base):
     service_date: Mapped[datetime] = mapped_column(DateTime(timezone=True))
     current_mileage: Mapped[int] = mapped_column(Integer, nullable=False)
     status: Mapped['MaintenanceStatus'] = mapped_column(
-        Enum(MaintenanceStatus)
+        SQLEnum(MaintenanceStatus)
     )
 
     services: Mapped['Service'] = relationship(
