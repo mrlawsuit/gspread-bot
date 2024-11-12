@@ -1,4 +1,5 @@
 from elasticsearch import AsyncElasticsearch
+from elasticsearch.exceptions import NotFoundError
 
 from ..main import app
 from .. import models
@@ -29,12 +30,15 @@ def search_query_by_id(id):
 
 async def get_document_id(id, index):
     body = search_query_by_id(id)
-    result = await elastic_client.search(
-        index=index,
-        body=body
-    )
-    if not result:
+    try:
+        result = await elastic_client.search(
+            index=index,
+            body=body
+        )
+    except NotFoundError:
         raise ValueError('There is no documents with such index')
+    if not result['hits']['hits']:
+        raise ValueError('No documents found with this id')
     return result['hits']['hits'][0]['_id']
 
 

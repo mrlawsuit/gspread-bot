@@ -14,6 +14,7 @@ from app.search.elasticsearch import (
 )
 from app.models import User
 
+from elasticsearch.exceptions import NotFoundError
 
 class MockModel(User):
     def to_dict(self):
@@ -86,3 +87,21 @@ async def test_get_document_id_success():
         )
         assert response == 'abc123'
         mock_search.assert_awaited_once_with(index=mock_index, body=search_query_by_id(mock_id))
+
+
+@pytest.mark.asyncio
+async def test_get_document_id_error():
+    mock_index = 'test_index'
+    mock_id = 1
+    mock_result = {
+        'hits': {
+            'hits': []
+        }
+    }
+    with patch('app.search.elasticsearch.elastic_client.search', new_callable=AsyncMock) as mock_search:
+        mock_search.return_value = mock_result
+
+        with pytest.raises(ValueError, match='No documents found with this id'):
+            await get_document_id(id=mock_id, index=mock_index)
+        mock_search.assert_awaited_once_with(index=mock_index, body=search_query_by_id(mock_id))
+
