@@ -29,10 +29,35 @@ async def test_create_document_elastic_success():
     ) as mock_index:
         mock_index.return_value = {'_id': 'test_elastic_index'}
 
-        response = await create_document_elastic(index=index_name, model=model_instance)
+        response = await create_document_elastic(
+            index=index_name,
+            model=model_instance
+        )
 
         # Проверка, что метод index был вызван с ожидаемыми аргументами
-        mock_index.assert_called_once_with(index=index_name, body=model_instance.to_dict())
+        mock_index.assert_called_once_with(
+            index=index_name,
+            body=model_instance.to_dict()
+        )
 
         # Проверка ожидаемого результата
         assert response == 'Document was add into elastic id is test_elastic_index'
+
+
+@pytest.mark.asyncio
+async def test_create_document_elastic_error():
+    index_name = 'test_index'
+    model_instance = MockModel()
+
+    with patch(
+        'app.search.elasticsearch.elastic_client.index',
+        new_callable=AsyncMock
+    ) as mock_index:
+        mock_index.side_effect = Exception('Elasticsearch index error')
+        with pytest.raises(Exception) as ex_info:
+            await create_document_elastic(
+                index=index_name,
+                model=model_instance
+            )
+
+    assert str(ex_info.value) == 'Elasticsearch index error'
