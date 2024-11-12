@@ -7,7 +7,11 @@ if module_path not in sys.path:
 import pytest
 from unittest.mock import AsyncMock, patch
 
-from app.search.elasticsearch import create_document_elastic
+from app.search.elasticsearch import (
+    create_document_elastic,
+    search_query_by_id,
+    get_document_id
+)
 from app.models import User
 
 
@@ -61,3 +65,24 @@ async def test_create_document_elastic_error():
             )
 
     assert str(ex_info.value) == 'Elasticsearch index error'
+
+
+@pytest.mark.asyncio
+async def test_get_document_id_success():
+    mock_index = 'test_index'
+    mock_id = 1
+    mock_result = {
+        'hits': {
+            'hits': [
+                {'_id': 'abc123'}
+            ]
+        }
+    }
+    with patch('app.search.elasticsearch.elastic_client.search', new_callable=AsyncMock) as mock_search:
+        mock_search.return_value = mock_result
+        response = await get_document_id(
+            id=mock_id,
+            index=mock_index
+        )
+        assert response == 'abc123'
+        mock_search.assert_awaited_once_with(index=mock_index, body=search_query_by_id(mock_id))
