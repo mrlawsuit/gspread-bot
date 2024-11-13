@@ -37,6 +37,7 @@ async def get_document_id(id, index):
         )
     except NotFoundError:
         raise ValueError('There is no documents with such index')
+    
     if not result['hits']['hits']:
         raise ValueError('No documents found with this id')
     return result['hits']['hits'][0]['_id']
@@ -59,6 +60,11 @@ async def delete_document_elastic(
     elastic_id = await get_document_id(id=id, index=index)
     result = await elastic_client.delete(index=index, id=elastic_id)
     return result['result']
-    
 
-    
+
+async def search_query(query: dict, index: str):
+    body = {
+        'query': {'match': query}
+    }
+    result = await elastic_client.search(index, body=body)
+    return result

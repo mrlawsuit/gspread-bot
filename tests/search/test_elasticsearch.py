@@ -10,7 +10,10 @@ from unittest.mock import AsyncMock, patch
 from app.search.elasticsearch import (
     create_document_elastic,
     search_query_by_id,
-    get_document_id
+    get_document_id,
+    update_document_elastic,
+    delete_document_elastic,
+    elastic_init
 )
 from app.models import User
 
@@ -105,3 +108,22 @@ async def test_get_document_id_error():
             await get_document_id(id=mock_id, index=mock_index)
         mock_search.assert_awaited_once_with(index=mock_index, body=search_query_by_id(mock_id))
 
+
+@pytest.mark.asyncio
+async def test_update_document_elastic():
+    pass
+
+
+@pytest.mark.asyncio
+async def test_delete_document_elastic():
+    pass
+
+
+@pytest.mark.asyncio
+async def test_elastic_init():
+    pass
+
+
+@pytest.mark.asyncio
+async def test_search_query_by_id():
+    pass
