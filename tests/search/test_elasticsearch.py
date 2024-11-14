@@ -82,14 +82,20 @@ async def test_get_document_id_success():
             ]
         }
     }
-    with patch('app.search.elasticsearch.elastic_client.search', new_callable=AsyncMock) as mock_search:
+    with patch(
+        'app.search.elasticsearch.elastic_client.search',
+        new_callable=AsyncMock
+    ) as mock_search:
         mock_search.return_value = mock_result
         response = await get_document_id(
             id=mock_id,
             index=mock_index
         )
         assert response == 'abc123'
-        mock_search.assert_awaited_once_with(index=mock_index, body=search_query_by_id(mock_id))
+        mock_search.assert_awaited_once_with(
+            index=mock_index,
+            body=search_query_by_id(mock_id)
+        )
 
 
 @pytest.mark.asyncio
@@ -101,22 +107,74 @@ async def test_get_document_id_error():
             'hits': []
         }
     }
-    with patch('app.search.elasticsearch.elastic_client.search', new_callable=AsyncMock) as mock_search:
+    with patch(
+        'app.search.elasticsearch.elastic_client.search',
+        new_callable=AsyncMock
+    ) as mock_search:
         mock_search.return_value = mock_result
 
         with pytest.raises(ValueError, match='No documents found with this id'):
             await get_document_id(id=mock_id, index=mock_index)
-        mock_search.assert_awaited_once_with(index=mock_index, body=search_query_by_id(mock_id))
+        mock_search.assert_awaited_once_with(
+            index=mock_index,
+            body=search_query_by_id(mock_id)
+        )
 
 
 @pytest.mark.asyncio
 async def test_update_document_elastic():
-    pass
+    '''Проверяет успешное выполнение функции update_document_elastic'''
+    with patch(
+        'app.search.elasticsearch.elastic_client.update',
+        new_callable=AsyncMock
+    ) as mock_update, \
+        patch(
+            'app.search.elasticsearch.get_document_id',
+            new_callable=AsyncMock
+        ) as mock_get_document_id:
+        # Настройка возвращаемых значений для моков
+        mock_get_document_id.return_value = 'mock_elastic_id'
+        mock_update.return_value = {'result': 'updated'}
+        # Входные данные для теста
+        index = 'test_index'
+        update_body = {'field': 'value'}
+        id = 123
+        # Вызов тестируемой функции
+        response = await update_document_elastic(index, update_body, id)
+        # Проверка результатов
+        assert response == 'updated'
+        # Проверка, что get_document_id был вызван с правильными аргументами
+        mock_get_document_id.assert_awaited_once_with(id=id, index=index)
+        # Проверка, что elastic_client.update был вызван с правильными аргументами
+        mock_update.assert_awaited_once_with(
+            index=index,
+            id='mock_elastic_id',
+            body=update_body
+        )
 
 
 @pytest.mark.asyncio
 async def test_delete_document_elastic():
-    pass
+    '''Проверяет успешное выполнение функции delete_document_elastic'''
+    with patch(
+        'app.search.elasticsearch.get_document_id',
+        new_callable=AsyncMock
+    ) as mock_get_document_id, \
+        patch(
+            'app.search.elasticsearch.elastic_client.delete',
+            new_callable=AsyncMock
+        ) as mock_delete:
+        mock_get_document_id.return_value = 'mock_elastic_id'
+        mock_delete.return_value = {'result': 'deleted'}
+        index = 'test_index'
+        id = 123
+
+        response = await delete_document_elastic(index=index, id=id)
+
+        assert response == 'deleted'
+
+        mock_get_document_id.assert_awaited_once_with(id=id, index=index)
+        mock_delete.assert_awaited_once_with(index=index, id='mock_elastic_id')
 
 
 @pytest.mark.asyncio
