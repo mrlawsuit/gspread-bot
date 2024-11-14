@@ -12,8 +12,12 @@ app.state.elastic_client = elastic_client
 
 
 async def elastic_init(index, body):
-    if not await elastic_client.exists(index):
-       await elastic_client.create(index=index, body=body)
+    try:
+        if not await elastic_client.indices.exists(index='users'):
+            result = await elastic_client.indices.create(index='users', mappings=mapping.user_mapping)
+    except NameError:
+        print('Index is already exists')
+    print(f'Index created succesfully with name {result['index']}')
 
 
 async def create_document_elastic(index: str, model: models.Base):
@@ -62,9 +66,23 @@ async def delete_document_elastic(
     return result['result']
 
 
-async def search_query(query: dict, index: str):
-    body = {
-        'query': {'match': query}
+def create_query(query: dict):
+    result = {
+        "match": {
+        list(query.keys())[0]: {
+            "query": list(query.values())[0]
+        }
+        }
     }
-    result = await elastic_client.search(index, body=body)
     return result
+
+
+async def search_query(query: dict, index: str):
+    body = create_query(query)
+    result = await elastic_client.search(index=index, query=body)
+    if result: 
+        print(f'Document was succesfuly created in elastic with id: {result['hits']['hits'][0]['_id']}')
+    else:
+        print('Something went wrong')
+
+
