@@ -1,7 +1,6 @@
 # from .. import models
 
 user_mapping = {
-    'mappings': {
         'properties': {
             'id': {'type': 'integer'},
             'name': {'type': 'text'},
@@ -11,20 +10,9 @@ user_mapping = {
             'acc_status': {'type': 'boolean'}
         }
     }
-}
-
-# user_index = {
-#         'id': models.User.id,
-#         'name': models.User.name,
-#         'email': models.User.email,
-#         'phone': models.User.phone,
-#         'role': models.User.role,
-#         'acc_status': models.User.acc_status
-#     }
 
 
 booking_mapping = {
-    'mappings': {
         'properties': {
             'id': {'type': 'integer'},
             'user_id': {'type': 'integer'},
@@ -41,11 +29,9 @@ booking_mapping = {
             'price': {'type': 'float'}
         }
     }
-}
 
 
 service_mapping = {
-    'mappings': {
         'properties': {
             'id': {'type': 'integer'},
             'service_name': {'type': 'tetx'},
@@ -53,11 +39,9 @@ service_mapping = {
             'price': {'type': 'float'}
         }
     }
-}
 
 
 vehicle_maintenance_mapping = {
-    'mappings': {
         'properties': {
             'id': {'type': 'integer'},
             'vehicle_id': {'type': 'integer'},
@@ -70,11 +54,9 @@ vehicle_maintenance_mapping = {
             'status': {'type': 'keyword'}
         }
     }
-}
 
 
 vehicle_mapping = {
-    'mappings': {
         'properties': {
             'id': {'type': 'integer'},
             'brand': {'type': 'text'},
@@ -85,11 +67,9 @@ vehicle_mapping = {
             'status': {'type': 'keyword'}
         }
     }
-}
 
 
 workshop_mapping = {
-    'mappings': {
         'properties': {
             'id': {'type': 'integer'},
             'name': {'type': 'text'},
@@ -97,4 +77,3 @@ workshop_mapping = {
             'phone': {'type': 'long'}
         }
     }
-}
