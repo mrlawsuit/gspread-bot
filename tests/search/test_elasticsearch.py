@@ -7,7 +7,7 @@ if module_path not in sys.path:
 import pytest
 from unittest.mock import AsyncMock, patch
 
-from app.search.elasticsearch import (
+from app.search.es_client import (
     create_document_elastic,
     search_query_by_id,
     get_document_id,
@@ -32,7 +32,7 @@ async def test_create_document_elastic_success():
     index_name = 'test_index'
     model_instance = MockModel()
     with patch(
-        'app.search.elasticsearch.elastic_client.index',
+        'app.search.es_client.elastic_client.index',
         new_callable=AsyncMock
     ) as mock_index:
         mock_index.return_value = {'_id': 'test_elastic_index'}
@@ -58,17 +58,17 @@ async def test_create_document_elastic_error():
     model_instance = MockModel()
 
     with patch(
-        'app.search.elasticsearch.elastic_client.index',
+        'app.search.es_client.elastic_client.index',
         new_callable=AsyncMock
     ) as mock_index:
-        mock_index.side_effect = Exception('Elasticsearch index error')
+        mock_index.side_effect = Exception('es_client index error')
         with pytest.raises(Exception) as ex_info:
             await create_document_elastic(
                 index=index_name,
                 model=model_instance
             )
 
-    assert str(ex_info.value) == 'Elasticsearch index error'
+    assert str(ex_info.value) == 'es_client index error'
 
 
 @pytest.mark.asyncio
@@ -83,7 +83,7 @@ async def test_get_document_id_success():
         }
     }
     with patch(
-        'app.search.elasticsearch.elastic_client.search',
+        'app.search.es_client.elastic_client.search',
         new_callable=AsyncMock
     ) as mock_search:
         mock_search.return_value = mock_result
@@ -108,7 +108,7 @@ async def test_get_document_id_error():
         }
     }
     with patch(
-        'app.search.elasticsearch.elastic_client.search',
+        'app.search.es_client.elastic_client.search',
         new_callable=AsyncMock
     ) as mock_search:
         mock_search.return_value = mock_result
@@ -125,11 +125,11 @@ async def test_get_document_id_error():
 async def test_update_document_elastic():
     '''Проверяет успешное выполнение функции update_document_elastic'''
     with patch(
-        'app.search.elasticsearch.elastic_client.update',
+        'app.search.es_client.elastic_client.update',
         new_callable=AsyncMock
     ) as mock_update, \
         patch(
-            'app.search.elasticsearch.get_document_id',
+            'app.search.es_client.get_document_id',
             new_callable=AsyncMock
         ) as mock_get_document_id:
         # Настройка возвращаемых значений для моков
@@ -157,11 +157,11 @@ async def test_update_document_elastic():
 async def test_delete_document_elastic():
     '''Проверяет успешное выполнение функции delete_document_elastic'''
     with patch(
-        'app.search.elasticsearch.get_document_id',
+        'app.search.es_client.get_document_id',
         new_callable=AsyncMock
     ) as mock_get_document_id, \
         patch(
-            'app.search.elasticsearch.elastic_client.delete',
+            'app.search.es_client.elastic_client.delete',
             new_callable=AsyncMock
         ) as mock_delete:
         mock_get_document_id.return_value = 'mock_elastic_id'
@@ -179,7 +179,27 @@ async def test_delete_document_elastic():
 
 @pytest.mark.asyncio
 async def test_elastic_init():
-    pass
+    with patch(
+        'app.search.es_client.elastic_client.indices.exists',
+        new_callable=AsyncMock
+    )  as mock_exists, \
+    patch(
+        'app.search.es_client.elastic_client.indices.create',
+        new_callable=AsyncMock
+    ) as mock_create:
+        mock_exists.return_value = None
+        index = 'test_index'
+        mapping = {
+            'properties': {
+                'id': {'type': 'integer'}
+            }
+        }
+        response = await elastic_init(index=index, mappings=mapping)
+
+        assert response == None
+
+        mock_create.assert_awaited_once_with(index=index, mappings=mapping)
+        mock_exists.assert_awaited_once_with(index=index)
 
 
 @pytest.mark.asyncio
