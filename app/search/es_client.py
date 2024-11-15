@@ -11,13 +11,12 @@ elastic_client = AsyncElasticsearch(['http://elastic:9200'])
 app.state.elastic_client = elastic_client
 
 
-async def elastic_init(index, body):
-    try:
-        if not await elastic_client.indices.exists(index='users'):
-            result = await elastic_client.indices.create(index='users', mappings=mapping.user_mapping)
-    except NameError:
+async def elastic_init(index, mappings):
+    if not await elastic_client.indices.exists(index=index):
+        result = await elastic_client.indices.create(index=index, mappings=mappings)
+        print(f'Index created succesfully with name {result['index']}')
+    else:
         print('Index is already exists')
-    print(f'Index created succesfully with name {result['index']}')
 
 
 async def create_document_elastic(index: str, model: models.Base):
@@ -41,7 +40,7 @@ async def get_document_id(id, index):
         )
     except NotFoundError:
         raise ValueError('There is no documents with such index')
-    
+
     if not result['hits']['hits']:
         raise ValueError('No documents found with this id')
     return result['hits']['hits'][0]['_id']
