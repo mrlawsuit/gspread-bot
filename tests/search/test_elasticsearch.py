@@ -13,11 +13,12 @@ from app.search.es_client import (
     get_document_id,
     update_document_elastic,
     delete_document_elastic,
-    elastic_init
+    elastic_init,
+    create_query,
+    search_query
 )
 from app.models import User
 
-from elasticsearch.exceptions import NotFoundError
 
 class MockModel(User):
     def to_dict(self):
@@ -122,7 +123,7 @@ async def test_get_document_id_error():
 
 
 @pytest.mark.asyncio
-async def test_update_document_elastic():
+async def test_update_document_elastic_success():
     '''Проверяет успешное выполнение функции update_document_elastic'''
     with patch(
         'app.search.es_client.elastic_client.update',
@@ -154,7 +155,7 @@ async def test_update_document_elastic():
 
 
 @pytest.mark.asyncio
-async def test_delete_document_elastic():
+async def test_delete_document_elastic_success():
     '''Проверяет успешное выполнение функции delete_document_elastic'''
     with patch(
         'app.search.es_client.get_document_id',
@@ -178,7 +179,7 @@ async def test_delete_document_elastic():
 
 
 @pytest.mark.asyncio
-async def test_elastic_init():
+async def test_elastic_init_success():
     with patch(
         'app.search.es_client.elastic_client.indices.exists',
         new_callable=AsyncMock
@@ -202,6 +203,50 @@ async def test_elastic_init():
         mock_exists.assert_awaited_once_with(index=index)
 
 
+def test_search_query_by_id_success():
+    id = 'test_id'
+    response = search_query_by_id(id)
+    assert response == {'query': {'match': {'id': 'test_id'}}}
+
+
+def test_create_query_success():
+    query = {'field': 'test'}
+    response = create_query(query)
+    assert response == {
+        'match': {
+            'field': {
+                'query': 'test'
+            }
+        }
+    }
+    return
+
+
 @pytest.mark.asyncio
-async def test_search_query_by_id():
-    pass
+async def test_search_query_success():
+    query = {'field': 'test'}
+    mock_query = {
+        'match': {
+            'field': {
+                'query': 'test'
+            }
+        }
+    }
+    mock_response = {
+        'hits': {
+            'hits': [
+                {'_id': '123'},
+            ]
+        }
+    }
+    index = 'test_index'
+
+    with patch(
+        'app.search.es_client.elastic_client.search',
+        new_callable=AsyncMock
+    ) as mock_search:
+        mock_search.return_value = mock_response
+        with patch('builtins.print') as mocked_print:
+            await search_query(query, index)
+            mock_search.assert_awaited_once_with(index=index, query=mock_query)
+            mocked_print.assert_called_once_with('Document was successfully created in elastic with id: 123')

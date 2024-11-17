@@ -80,7 +80,7 @@ async def search_query(query: dict, index: str):
     body = create_query(query)
     result = await elastic_client.search(index=index, query=body)
     if result: 
-        print(f'Document was succesfuly created in elastic with id: {result['hits']['hits'][0]['_id']}')
+        print(f'Document was successfully created in elastic with id: {result["hits"]["hits"][0]["_id"]}')
     else:
         print('Something went wrong')
 
