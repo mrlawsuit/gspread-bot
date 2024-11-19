@@ -32,3 +32,11 @@ class CreateMaintenance(BaseModel):
     service_date: datetime
     status: MaintenanceStatus
     current_mileage: int
+
+
+class CreateUser(BaseModel):
+    name: str
+    email: str
+    phone: int
+    role: Role
+    acc_status: bool
